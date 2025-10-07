@@ -158,6 +158,18 @@
 
 </details>
 
+---
+
+## 🤖 **Provider Matrix**
+
+| Provider | CLI | Streaming | JSON Mode | Tool Calls | Notes |
+|----------|-----|-----------|-----------|------------|-------|
+| Anthropic | `npx pai-anthropic` | ✅ (`--stream`) | ✅ (`--json`) | ✅ (exit 10 hand-off) | Built for Claude models and structured outputs. |
+| **OpenAI** | `npx pai-openai` | ✅ (SSE default) | ✅ (`--json` default) | ✅ (`--tool-spec` / `--tool-exec`) | Uses OpenAI Responses API, integrates hooks, and supports JSON tooling. |
+| Gemini | `npx pai-gemini` | ✅ (`--stream`) | ✅ (`--json`) | 🚧 | Provider adapter in progress—refer to roadmap for availability. |
+
+See [`docs/providers.md`](./docs/providers.md) for detailed configuration guidance across OpenAI models.
+
 </details>
 
 ---
@@ -494,6 +506,17 @@ ${PAI_DIR}/context/
 > PAI was originally built with [Claude Code](https://claude.ai/code), but the architecture supports any AI platform (GPT, Gemini, etc.)
 > Requires [Bun](https://bun.sh) JavaScript runtime for the current implementation.
 
+### ⚡ **OpenAI provider in 60 seconds**
+
+```bash
+export OPENAI_API_KEY="sk-your-key"
+cd provider-adapters/pai-openai
+npm install
+npx pai-openai --stream false --json "Respond with {\\"status\\":\\"ok\\"}"
+```
+
+Optionally append `| jq -e '.status == "ok"'` if `jq` is available to assert JSON output. These commands run unchanged on macOS and Linux shells. For a richer walkthrough, see [`docs/examples/openai/context-summary.md`](./docs/examples/openai/context-summary.md).
+
 ### **Installation**
 
 #### **Step 1: Install Prerequisites**
@@ -565,6 +588,21 @@ cd voice-server && bun server.ts &
 # Your personal AI infrastructure is ready 🚀
 ```
 
+```bash
+# Quick sanity check for the OpenAI adapter
+cd provider-adapters/pai-openai
+npx pai-openai --stream false --json "Respond with {\\"status\\":\\"ready\\"}"
+# Optional: pipe to jq when available for validation
+# npx pai-openai --stream false --json "Respond with {\\"status\\":\\"ready\\"}" | jq -e '.status == "ready"'
+```
+
+### 🛠️ **Troubleshooting & rate limits**
+
+- **Authentication errors** (`401`/`403`): confirm `OPENAI_API_KEY` is exported in the current shell and available to hooks. For enterprise proxies, also set `OPENAI_BASE_URL`.
+- **429 rate limit responses**: back off and retry with exponential delay. The adapter respects `OPENAI_TIMEOUT_MS`; combine with the `--timeout` flag to shorten retries during CI.
+- **Context too large**: tune `OPENAI_MAX_CONTEXT_BYTES` / `OPENAI_MAX_FILE_BYTES` or trim your glob patterns. The CLI logs skipped files at `--log-level debug`.
+- **Streaming vs non-streaming**: CI jobs should prefer `--stream false` to avoid partial lines when piping into `jq` or `grep`.
+
 ### **⚙️ Environment Variables**
 
 ```bash
@@ -593,10 +631,13 @@ DA_COLOR="purple"                 # Display color (purple, blue, green, cyan, et
 | 📖 Guide | 🎯 Purpose | ⏱️ Time |
 |----------|------------|---------|
 | [Quick Start](#-quick-start) | Get up and running | 5 min |
+| [OpenAI Provider](./docs/providers.md) | Configure models, JSON mode, tools | 7 min |
+| [`pai-openai` CLI](./docs/cli/pai-openai.md) | Flags, hooks, and automation | 8 min |
 | [Architecture](#-architecture) | Understand the system | 10 min |
 | [SECURITY.md](./SECURITY.md) | Security guidelines | 5 min |
 | [Voice Server](./PAI_DIRECTORY/voice-server/README.md) | Enable voice interaction | 10 min |
 | [Commands Directory](./PAI_DIRECTORY/commands/) | Browse all commands | 15 min |
+| [OpenAI Examples](./docs/examples/openai) | Copy-pasteable workflows | 5 min |
 
 </div>
 

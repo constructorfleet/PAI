@@ -4,13 +4,7 @@ on:
   push:
     branches:
       - main
-    paths:
-      - "provider-adapters/**"
-      - ".github/workflows/provider-adapters-ci.yml"
   pull_request:
-    paths:
-      - "provider-adapters/**"
-      - ".github/workflows/provider-adapters-ci.yml"
 
 permissions:
   contents: read
