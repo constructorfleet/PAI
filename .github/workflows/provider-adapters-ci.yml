@@ -1,0 +1,80 @@
+name: Provider Adapters CI
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "provider-adapters/**"
+      - ".github/workflows/provider-adapters-ci.yml"
+  pull_request:
+    paths:
+      - "provider-adapters/**"
+      - ".github/workflows/provider-adapters-ci.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  pai-openai:
+    name: Lint, test, and coverage
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: provider-adapters/pai-openai
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: provider-adapters/pai-openai/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run lint
+        run: npm run lint
+
+      - name: Run tests with coverage
+        run: npm test -- --coverage
+
+      - name: Publish coverage summary
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+          const path = require('path');
+
+          const summaryPath = path.join(process.cwd(), 'coverage', 'coverage-summary.json');
+          if (!fs.existsSync(summaryPath)) {
+            throw new Error(`Coverage summary not found at ${summaryPath}`);
+          }
+
+          const summary = JSON.parse(fs.readFileSync(summaryPath, 'utf8'));
+          const total = summary.total;
+
+          const formatRow = (label, metrics) => {
+            const pct = metrics.pct?.toFixed(2) ?? '0.00';
+            return `| ${label} | ${pct}% | ${metrics.covered}/${metrics.total} |`;
+          };
+
+          const lines = [
+            '| Metric | Coverage | Covered / Total |',
+            '| --- | --- | --- |',
+            formatRow('Statements', total.statements),
+            formatRow('Branches', total.branches),
+            formatRow('Functions', total.functions),
+            formatRow('Lines', total.lines)
+          ];
+
+          fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, `${lines.join('\n')}\n`);
+          NODE
+
+      - name: Upload coverage artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: pai-openai-coverage
+          path: provider-adapters/pai-openai/coverage

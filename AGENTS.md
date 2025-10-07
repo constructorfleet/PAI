@@ -5,3 +5,4 @@ PAI (Personal AI Infrastructure) is an open-source framework for orchestrating p
 
 ## Provider adapters
 - `provider-adapters/pai-openai`: A TypeScript CLI wrapper around OpenAI's Responses API that enriches prompts with repository context, streams responses, and executes declared tool calls.
+- When adding or updating tests anywhere in this repository, prefer realistic, production-like test data over contrived or placeholder examples so that behaviors are exercised under conditions that mirror real usage as closely as possible.
