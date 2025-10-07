@@ -6,7 +6,7 @@ export default defineConfig({
     include: ["tests/**/*.test.ts"],
     globals: true,
     coverage: {
-      reporter: ["text", "lcov"],
+      reporter: ["text", "json-summary", "lcov"],
       reportsDirectory: "coverage"
     }
   }
