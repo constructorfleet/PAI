@@ -1,6 +1,6 @@
 import { promises as fs } from "node:fs";
 import path from "node:path";
-import { ToolExecutionResult, ToolSpecFile, ToolCall } from "./types";
+import type { ToolExecutionResult, ToolSpecFile, ToolCall } from "./types";
 import { log } from "./log";
 
 export async function loadToolSpecs(toolSpecPath?: string) {

@@ -1,6 +1,6 @@
 import OpenAI from "openai";
 import { log, logError } from "./log";
-import { CallResult, ToolCall } from "./types";
+import type { CallResult, ToolCall } from "./types";
 import { executeTool, loadToolSpecs } from "./tools";
 
 export type CallArgs = {
