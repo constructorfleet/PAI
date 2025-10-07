@@ -1,5 +1,3 @@
-/// <reference types="vitest" />
-
 import { describe, expect, it, beforeEach, afterEach, vi } from "vitest";
 import { log, logError, setLogLevel } from "../src/log";
 

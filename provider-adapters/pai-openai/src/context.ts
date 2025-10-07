@@ -1,7 +1,7 @@
 import fg from "fast-glob";
 import { promises as fs } from "node:fs";
 import path from "node:path";
-import { ContextBuildOptions, ContextEntry } from "./types";
+import type { ContextBuildOptions, ContextEntry } from "./types";
 import { log } from "./log";
 
 const DEFAULT_MAX_TOTAL = 900_000;
@@ -47,19 +47,22 @@ export async function buildContext(options: ContextBuildOptions): Promise<{ entr
       if (stat.size === 0) continue;
       const ext = path.extname(file).toLowerCase();
       if (!includeExtensions.includes(ext)) continue;
-      if (stat.size > maxFile) {
-        log("warn", `Skipping ${file} (>${Math.round(maxFile / 1024)}KB)`);
-        continue;
-      }
-      if (totalBytes + stat.size > maxTotal) {
+
+      const truncated = stat.size > maxFile;
+      const budgetBytes = truncated ? maxFile : stat.size;
+      if (totalBytes + budgetBytes > maxTotal) {
         log("warn", `Context budget reached; skipping remaining files (last attempted ${file}).`);
         break;
       }
+
       const raw = await fs.readFile(file, "utf8");
-      const truncated = Buffer.byteLength(raw, "utf8") > maxFile;
       const text = truncated ? raw.slice(0, maxFile) : raw;
-      totalBytes += Buffer.byteLength(text, "utf8");
+      const textBytes = Buffer.byteLength(text, "utf8");
+      totalBytes += textBytes;
       entries.push({ path: file, size: stat.size, text, truncated });
+      if (truncated) {
+        log("warn", `Truncated ${file} to ${(maxFile / 1024).toFixed(1)}KB for context.`);
+      }
     } catch (err) {
       log("warn", `Failed to read context file ${file}: ${(err as Error).message}`);
     }

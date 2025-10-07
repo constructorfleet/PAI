@@ -1,5 +1,3 @@
-/// <reference types="vitest" />
-
 import { promises as fs } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";

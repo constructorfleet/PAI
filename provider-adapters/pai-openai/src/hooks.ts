@@ -1,5 +1,5 @@
 import { spawn } from "node:child_process";
-import { HookEnv } from "./types";
+import type { HookEnv } from "./types";
 import { log } from "./log";
 
 export async function runHook(command: string, env: HookEnv) {

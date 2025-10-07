@@ -8,7 +8,7 @@ import { buildContext } from "./context";
 import { callOpenAI } from "./adapter";
 import { runHook } from "./hooks";
 import { log, logError, setLogLevel } from "./log";
-import { LogLevel } from "./types";
+import type { LogLevel } from "./types";
 
 async function readStdin(): Promise<string> {
   if (stdin.isTTY) return "";

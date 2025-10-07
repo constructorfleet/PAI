@@ -1,6 +1,6 @@
 import { stderr } from "node:process";
 import stripAnsi from "strip-ansi";
-import { LogLevel } from "./types";
+import type { LogLevel } from "./types";
 
 const LEVELS: Record<LogLevel, number> = {
   silent: 0,
